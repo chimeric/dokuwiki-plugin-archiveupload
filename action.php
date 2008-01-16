@@ -9,7 +9,7 @@
 if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_INC.'inc/plugin.php');
+require_once(DOKU_PLUGIN.'action.php');
 
 /**
  * DokuWiki Action Plugin Archive Upload
@@ -27,7 +27,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         return array(
                 'author' => 'Michael Klier',
                 'email'  => 'chi@chimeric.de',
-                'date'   => '2007-11-19',
+                'date'   => '2008-01-16',
                 'name'   => 'ArchiveUpload',
                 'desc'   => 'Allows you to unpack uploaded archives.',
                 'url'    => 'http://www.chimeric.de/projects/dokuwiki/plugin/archiveupload'
@@ -77,10 +77,9 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         global $conf;
 
         $this->tmpdir = $this->_mktmpdir();
-        if(!$this->tmpdir) {
-            msg($this->getLang('tmpdir_err'), -1);
-            return false;
-        }
+
+        // failed to create tmp dir stop here
+        if(!$this->tmpdir) return false;
 
         $ext = substr($fn, strrpos($fn,'.')+1);
 
@@ -132,15 +131,15 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         require_once(DOKU_INC.'lib/plugins/plugin/admin.php');
 
         // decompression library doesn't like target folders ending in "/"
-        if (substr($target, -1) == "/") $target = substr($target, 0, -1);
+        if(substr($target, -1) == "/") $target = substr($target, 0, -1);
 
         $ext = substr($file, strrpos($file,'.')+1);
 
-        if (in_array($ext, array('tar','gz','tgz'))) {
+        if(in_array($ext, array('tar','gz','tgz'))) {
 
             require_once(DOKU_INC."inc/TarLib.class.php");
 
-            if (strpos($ext, 'gz') !== false) $compress_type = COMPRESS_GZIP;
+            if(strpos($ext, 'gz') !== false) $compress_type = COMPRESS_GZIP;
             //else if (strpos($ext,'bz') !== false) $compress_type = COMPRESS_BZIP; // FIXME bz2 support
             else $compress_type = COMPRESS_NONE;
 
@@ -170,9 +169,6 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
                 return false;
             }
 
-        }  else if ($ext == "rar") {
-          // not yet supported -- FIXME
-          return false;
         }
 
         // unsupported file type
@@ -237,7 +233,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
                     }
 
                     // everything's ok - lets move the file
-                    // FIXME check for success !!
+                    // FIXME check for success ??
                     rename($this->tmpdir.'/'.$fn_old, $dir.'/'.$fn_new);
                     chmod($dir.'/'.$fn_new, $conf['fmode']);
 
@@ -254,8 +250,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
             }
         }
 
-        // done - remove eventually left over empty dirs
-        // in destination directory 
+        // done - remove eventually left over empty dirs in destination directory 
         natsort($dirs);
         $dirs = array_reverse($dirs);
         foreach($dirs as $dir) {
@@ -271,39 +266,15 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
     }
 
     /**
-     * Creates a temporary directory in the systems tmp directory
+     * Creates a temporary directory below the cache dir
+     * FIXME propose DOKU_TMP to the ml
      *
-     * @url    http://de.php.net/manual/en/function.sys-get-temp-dir.php
      * @author Michael Klier <chi@chimeric.de>
      */
     function _mktmpdir() {
         global $conf;
 
-        if(!function_exists('sys_get_temp_dir')) {
-            // Try to get from environment variable
-            if(!empty($_ENV['TMP'])) {
-                return realpath($_ENV['TMP']);
-            } else if (!empty($_ENV['TMPDIR'])) {
-                return realpath($_ENV['TMPDIR']);
-            } else if (!empty($_ENV['TEMP'])) {
-                return realpath($_ENV['TEMP']);
-            } else {
-                // Detect by creating a temporary file
-                // Try to use system's temporary directory
-                // as random name shouldn't exist
-                $tmp_file = tempnam(md5(uniqid(rand(), TRUE)), '');
-                if($tmp_file) {
-                    $tmp_dir = realpath(dirname($tmp_file));
-                    unlink($tmp_file);
-                } else {
-                    return FALSE;
-                }
-            }
-        } else {
-            $tmp_dir = sys_get_temp_dir();
-        }
-
-        $tmp_dir = $tmp_dir . '/' . md5(microtime());
+        $tmp_dir = $conf['savedir'] . '/cache/archiveupload' . md5(microtime());
         mkdir($tmp_dir, $conf['dmode']);
         return ($tmp_dir);
     }
