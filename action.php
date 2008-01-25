@@ -76,7 +76,15 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         global $lang;
         global $conf;
 
-        $this->tmpdir = $this->_mktmpdir();
+        $d  = $conf['savedir'] . '/cache/archiveupload' . md5(microtime());
+        $ok = io_mkdir_p($d);
+
+        if($ok) {
+            $this->tmpdir = $d;
+        } else {
+            msg('Failed to create tmp dir, check permissions of cache/ directory', -1);
+            return false;
+        }
 
         // failed to create tmp dir stop here
         if(!$this->tmpdir) return false;
@@ -263,20 +271,6 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         foreach($dirs as $dir) {
             @rmdir($dir);
         }
-    }
-
-    /**
-     * Creates a temporary directory below the cache dir
-     * FIXME propose DOKU_TMP to the ml
-     *
-     * @author Michael Klier <chi@chimeric.de>
-     */
-    function _mktmpdir() {
-        global $conf;
-
-        $tmp_dir = $conf['savedir'] . '/cache/archiveupload' . md5(microtime());
-        mkdir($tmp_dir, $conf['dmode']);
-        return ($tmp_dir);
     }
 }
 // setup: vim:ts=4:sw=4:enc=utf8
