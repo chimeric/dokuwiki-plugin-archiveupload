@@ -273,4 +273,4 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         }
     }
 }
-// setup: vim:ts=4:sw=4:enc=utf8
+// vim:ts=4:sw=4:et:enc=utf8:
