@@ -48,6 +48,10 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
      * @author Michael Klier <chi@chimeric.de>
      */
     function handle_form_output(&$event, $param) {
+        global $INFO;
+        if($this->getConf('manageronly')) {
+            if(!$INFO['isadmin'] && !$INFO['ismanager']) return;
+        }
         $event->data->addElement(form_makeCheckboxField('unpack', 0, $this->getLang('unpack')));
     }
 
@@ -57,8 +61,14 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
      * @author Michael Klier <chi@chimeric.de>
      */
     function handle_media_upload(&$event, $param) {
+        global $INFO;
+
         // nothing todo
         if(!isset($_REQUEST['unpack'])) return;
+
+        if($this->getConf('manageronly')) {
+            if(!$INFO['isadmin'] && !$INFO['ismanager']) return;
+        }
 
         // our turn - prevent default action
         $event->preventDefault();
