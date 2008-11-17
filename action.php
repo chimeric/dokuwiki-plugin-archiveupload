@@ -76,11 +76,9 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
         global $lang;
         global $conf;
 
-        $d  = $conf['savedir'] . '/cache/archiveupload' . md5(microtime());
-        $ok = io_mkdir_p($d);
-
-        if($ok) {
-            $this->tmpdir = $d;
+        $dir = io_mktmpdir();
+        if($dir) {
+            $this->tmpdir = $dir;
         } else {
             msg('Failed to create tmp dir, check permissions of cache/ directory', -1);
             return false;
