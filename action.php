@@ -30,7 +30,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
                 'date'   => @file_get_contents(DOKU_PLUGIN.'archiveupload/VERSION'),
                 'name'   => 'ArchiveUpload',
                 'desc'   => 'Allows you to unpack uploaded archives.',
-                'url'    => 'http://www.chimeric.de/projects/dokuwiki/plugin/archiveupload'
+                'url'    => 'http://dokuwiki.org/plugin:archiveupload'
             );
     }
 
