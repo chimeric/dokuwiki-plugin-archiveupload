@@ -214,7 +214,8 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
 
         foreach($files as $file) {
             $fn_old = $file['filename'];                                // original filename
-            $fn_new = str_replace(':','/',cleanID($file['filename']));  // target filename
+            $fn_new = str_replace('/',':',$fn_old);                     // target filename
+            $fn_new = str_replace(':', '/', cleanID($fn_new));
 
             if(substr($fn_old, -1) == '/') { 
                 // given file is a directory
@@ -260,7 +261,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
 
                 } else {
                     msg($lang['uploadwrong'],-1);
-                    unlink($this->tmpdir.'/'.$fn_old);
+                    @unlink($this->tmpdir.'/'.$fn_old);
                     continue;
                 }
             }
