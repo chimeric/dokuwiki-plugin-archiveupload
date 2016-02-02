@@ -37,7 +37,7 @@ class action_plugin_archiveupload extends DokuWiki_Action_Plugin {
      /**
       * Registers our callback functions
       */
-    function register(&$controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook('HTML_UPLOADFORM_OUTPUT', 'BEFORE', $this, 'handle_form_output');
         $controller->register_hook('MEDIA_UPLOAD_FINISH', 'BEFORE', $this, 'handle_media_upload');
     }
